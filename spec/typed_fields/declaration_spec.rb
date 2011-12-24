@@ -99,7 +99,11 @@ describe TypedFields::Declaration do
       f(:field).should == [1,2]
     end
     
-    it "should call custom's type constructor when custom type is specified" do
+    it "should use custom type" do
+      type = stub(:parse => "parsed")
+      clazz.custom :field, :type => type
+      object.initialize_fields(:field => nil)
+      f(:field).should == "parsed"
     end
   end
 
