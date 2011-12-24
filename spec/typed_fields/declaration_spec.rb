@@ -14,10 +14,10 @@ describe TypedFields::Declaration do
 
   context "basic" do
     it "should declare an object field" do
-      clazz.object :object_field
-      object.initialize_fields :object_field => "value"
+      clazz.object :field
+      object.initialize_fields :field => "value"
       
-      f(:object_field).should == "value"
+      f(:field).should == "value"
     end
 
     it "should declare many object fields" do
@@ -108,6 +108,25 @@ describe TypedFields::Declaration do
   end
 
   context "inheritance" do
+    let :object do
+      Child.new
+    end
+    
+    class Parent
+      include TypedFields::Declaration
+      object :parent_field, :default => 'parent'
+    end
+
+    class Child < Parent
+      include TypedFields::Declaration
+      object :child_field, :default => 'child'
+    end
+
+    it "should initialize both parent and child fields" do
+      object.initialize_fields({})
+      f(:parent_field).should == "parent"
+      f(:child_field).should == "child"
+    end
   end
   
   private

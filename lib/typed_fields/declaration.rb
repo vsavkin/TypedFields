@@ -47,30 +47,39 @@ module TypedFields
   end
   
   module ClassMethods
-    { :object => ObjectType,
-      :integer => IntegerType,
-      :decimal => DecimalType,
-      :string => StringType,
-      :boolean => BooleanType}.each do |method_name, type|
+    { :object => ObjectType.new,
+      :integer => IntegerType.new,
+      :decimal => DecimalType.new,
+      :string => StringType.new,
+      :boolean => BooleanType.new,
+      :custom => nil}.each do |method_name, type|
 
       define_method method_name do |*params|
-        declare_fields params, type.new
+        declare_fields params, type
       end
 
       array_method = "array_of_#{method_name}s"
       define_method array_method do |*params|
-        declare_fields params, ArrayType.new(type.new)
+        declare_fields params, ArrayType.new(type)
+      end
+    end
+
+    def saved_type_info
+      name = :@@fields_type_information
+      if class_variable_defined?(name)
+        class_variable_get(name)
+      else
+        class_variable_set(name, {})
       end
     end
     
     private
     def declare_fields params, type
       options = params.last.is_a?(Hash) ? params.pop : {}
-      options[:type] = type
+      options[:type] ||= type
       
-      @fields_type_information ||= {}
       params.each do |field_name|
-        @fields_type_information[field_name] = options
+        saved_type_info[field_name] = options
       end
     end
   end
@@ -84,13 +93,9 @@ module TypedFields
     end
     
     private
-
-    def saved_type_info
-      self.class.instance_variable_get("@fields_type_information") || {}
-    end
-
+    
     def set_value field_name, value
-      type_info = saved_type_info[field_name]
+      type_info = self.class.saved_type_info[field_name]
       return unless type_info 
       type = type_info[:type]
       parsed_value = type.parse(value)
@@ -98,7 +103,7 @@ module TypedFields
     end
 
     def set_default_values
-      saved_type_info.each do |field_name, options|
+      self.class.saved_type_info.each do |field_name, options|
         default_value = options[:default]
         default_value = default_value.call(self) if default_value.respond_to? :call
         set_value field_name, default_value
