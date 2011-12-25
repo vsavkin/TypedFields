@@ -1,10 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-describe TypedFields::Declaration do
+describe TypedFields do
 
   let(:clazz) do
     clazz = Class.new
-    clazz.send :include, TypedFields::Declaration
+    clazz.send :include, TypedFields
     clazz
   end
 
@@ -113,12 +113,12 @@ describe TypedFields::Declaration do
     end
     
     class Parent
-      include TypedFields::Declaration
+      include TypedFields
       object :parent_field, :default => 'parent'
     end
 
     class Child < Parent
-      include TypedFields::Declaration
+      include TypedFields
       object :child_field, :default => 'child'
     end
 

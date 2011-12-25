@@ -111,10 +111,8 @@ module TypedFields
     end
   end
        
-  module Declaration
-    def self.included clazz
-      clazz.send :include, InstanceMethods
-      clazz.extend ClassMethods
-    end
+  def self.included clazz
+    clazz.send :include, InstanceMethods
+    clazz.extend ClassMethods
   end
 end
