@@ -1,7 +1,12 @@
 # Typed Fields
 
 ## Introduction
-Using ActiveRecord for your domain objects causes a lot of grief. Often it's just impossible as there is no table that you map your domain objects too. There are some adhoc solutions that were introducted like "BaseWithoutTable" that ease that pain a little bit. But fundamentaly the problem is still there. A pure domain object is tied to the implementation detail - AR. ActiveModel is a big step forward and I highly recommend to use it. But there are a few things I really miss when I use ActiveModel. One of them is typed fields. ActiveRecord handles all type conversations for you. You just pass a bunch of strings and it knows what to do with them. That's where the TypedFields gem comes into play. It allows you to specify types for your fields so migration from AR to AM won't be a problem.
+Using ActiveRecord to implement domain objects causes a lot of grief. Often it's just impossible as there is no table that you map your domain objects to. 
+
+ActiveModel is a big step forward and I highly recommend using it. It does a pretty good job doing what AR used to do but without coupling your domain objects to the database. One of a few things I miss though is is typed fields. ActiveRecord takes care of all type conversations. You just pass a bunch of strings and it knows what to do with them. You need to do it manually if you use ActiveModel.
+
+That's where the TypedFields gem comes into play. It allows you to specify types for your fields which eases the migration from ActiveRecord to ActiveModel.
+
 
 ## How to use
 ```ruby
@@ -18,12 +23,12 @@ class Person
 end
 ```
 
-As you can see from the exampel above including TypedFields adds several class methods (such as string, integer) and an instance method "initialize_fields".
+As you can see from the example above including TypedFields adds several class methods (such as string, integer) and an instance method initializing fields.
 
 ## Advanced Features
 
 ### Using Custom Types
-Besides having such basic types as integers, decimals, string and boolean you can specify custom types. 
+Besides having such basic types as integers, decimals, strings and booleans you can specify custom types. 
 
 ```ruby
 module UppercaseString
@@ -68,10 +73,8 @@ p.initialize_fields name: "John" #@name == "John", @age == 100
 ```ruby
 class Person
   include TypedFields
-  string :first_name, :last_name
-  string :full_name, default: Proc.new{|p| "#{p.first_name} #{p.last_name}"}
+  string :name, default: Proc.new{"default value"}
 end
 
 p = Person.new
-p.initialize_fields first_name: "John", last_name: "Coltrane" #@full_name == "John Coltrane" 
-```
+p.initialize_fields({}) #@name == "default_value"
