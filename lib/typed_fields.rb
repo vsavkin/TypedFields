@@ -46,6 +46,18 @@ module TypedFields
       obj.map{|o| @type.parse o}
     end
   end
+
+  class ProcType
+    def initialize proc
+      @proc = proc
+    end
+
+    def parse obj
+      @proc.call obj
+    end
+  end
+
+  TypeInfo = Struct.new(:field_name, :type, :default)
   
   module ClassMethods
     { :object => ObjectType.new,
@@ -70,45 +82,65 @@ module TypedFields
       if class_variable_defined?(name)
         class_variable_get(name)
       else
-        class_variable_set(name, {})
+        class_variable_set(name, [])
       end
     end
     
     private
     def declare_fields params, type
       options = params.last.is_a?(Hash) ? params.pop : {}
-      options[:type] ||= type
+      type = extract_type(options, type)
+      default = extract_default(options)
       
       params.each do |field_name|
-        saved_type_info[field_name] = options
+        saved_type_info << TypeInfo.new(field_name, type, default)
       end
+    end
+
+    def extract_type options, type
+      t = options[:type] || type
+      t.respond_to?(:call) ? ProcType.new(t) : t
+    end
+
+    def extract_default options
+      options[:default]
     end
   end
 
   module InstanceMethods
     def initialize_fields params
-      set_default_values
-      params.each do |field_name, value|
-        set_value field_name, value
+      self.class.saved_type_info.each do |type_info|
+        value = value_for params, type_info
+        set_value type_info.field_name, value
       end
     end
     
     private
-    
-    def set_value field_name, value
-      type_info = self.class.saved_type_info[field_name]
-      return unless type_info 
-      type = type_info[:type]
-      parsed_value = type.parse(value)
-      instance_variable_set "@#{field_name.to_s}", parsed_value
+
+    def value_for params, type_info
+      if passed_value_for? params, type_info
+        value = parse_passed_value params, type_info
+      else
+        value = default_value type_info
+      end
     end
 
-    def set_default_values
-      self.class.saved_type_info.each do |field_name, options|
-        default_value = options[:default]
-        default_value = default_value.call(self) if default_value.respond_to? :call
-        set_value field_name, default_value
-      end
+    def passed_value_for? params, type_info
+       params.has_key?(type_info.field_name)
+    end
+
+    def default_value type_info
+      d = type_info.default
+      d.respond_to?(:call) ? d.call(self) : d
+    end
+
+    def parse_passed_value params, type_info
+      passed_value = params[type_info.field_name]
+      type_info.type.parse(passed_value) 
+    end
+    
+    def set_value field_name, value
+      instance_variable_set "@#{field_name.to_s}", value
     end
   end
        

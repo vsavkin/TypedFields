@@ -99,11 +99,17 @@ describe TypedFields do
       f(:field).should == [1,2]
     end
     
-    it "should use custom type" do
+    it "should use a custom type" do
       type = stub(:parse => "parsed")
       clazz.custom :field, :type => type
       object.initialize_fields(:field => nil)
       f(:field).should == "parsed"
+    end
+
+    it "should use Proc as a custom type" do
+      clazz.custom :field, :type => Proc.new{|s| s.upcase}
+      object.initialize_fields(:field => "abc")
+      f(:field).should == "ABC"
     end
   end
 
