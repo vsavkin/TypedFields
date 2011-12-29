@@ -109,13 +109,18 @@ module TypedFields
 
   module InstanceMethods
     def initialize_fields params
+      symbolized_params = symbolize_hash params
       self.class.saved_type_info.each do |type_info|
-        value = value_for params, type_info
+        value = value_for symbolized_params, type_info
         set_value type_info.field_name, value
       end
     end
     
     private
+
+    def symbolize_hash hash
+      hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+    end
 
     def value_for params, type_info
       if passed_value_for? params, type_info

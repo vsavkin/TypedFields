@@ -33,6 +33,12 @@ describe TypedFields do
       object.initialize_fields :another_field => "value"
       f(:another_field).should be_nil
     end
+
+    it "should symbolize all keys of a passed hash" do
+      clazz.object :field
+      object.initialize_fields "field" => "value"
+      f(:field).should == "value"
+    end
   end
 
   context "default values" do
