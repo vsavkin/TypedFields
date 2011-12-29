@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Victor Savkin"]
   s.email       = ["vic.savkin@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{It types all your fields. Adds methods to convert a hash of strings into specified types.}
-  s.description = %q{}
+  s.summary     = %q{Type conversions based on fields' types. Similar to what ActiveRecord does.}
+  s.description = %q{Type conversions based on fields' types. Similar to what ActiveRecord does.}
 
   s.rubyforge_project = "typed_fields"
 
