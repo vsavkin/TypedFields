@@ -3,7 +3,7 @@
 ## Introduction
 Using ActiveRecord to implement domain objects causes a lot of grief. Often it's just impossible as there is no table that you map your domain objects to. 
 
-ActiveModel is a big step forward and I highly recommend using it. It does a pretty good job doing what AR used to do but without coupling your domain objects to the database. One of a few things I miss though is typed fields. ActiveRecord takes care of all type conversations. You just pass a bunch of strings and it knows what to do with them. You need to do it manually if you use ActiveModel.
+ActiveModel is a big step forward and I highly recommend using it. It does a pretty good job doing what AR used to do but without coupling your domain objects to the database. One of a few things I miss though is typed fields. ActiveRecord takes care of all type conversions. You just pass a bunch of strings and it knows what to do with them. You need to do it manually if you use ActiveModel.
 
 That's where the TypedFields gem comes into play. It allows you to specify types for your fields which eases the migration from ActiveRecord to ActiveModel.
 
